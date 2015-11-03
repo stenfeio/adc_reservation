@@ -1,7 +1,6 @@
 
-
-
 public class Hotel {
+
 	public Hotel(Rooms p1, Concert p2){
 		for(int i=0;i<10;i++){
 			int j=i+1;
@@ -10,5 +9,5 @@ public class Hotel {
 			}
 		}
 	
-}
+	}
 }
