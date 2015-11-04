@@ -1,7 +1,6 @@
 
 public class Hotel {
     //TODO add instance variables saving the rooms here.
-
 	public Hotel(Rooms p1, Concert p2){
 
         for(int i=0;i<10;i++){

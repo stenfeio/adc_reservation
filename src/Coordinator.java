@@ -28,7 +28,6 @@ public class Coordinator {
      * Constructor to setup a coordinator object. Sets up the config file and sets the initial
      * state to failed. Failed changes when we establish a running thread with a port.
      */
-
     public Coordinator(){
         SYSTEM_STATUS = Status.FAILED;
         configFile = new File(resourcePath+ "coordinator-config.txt");
