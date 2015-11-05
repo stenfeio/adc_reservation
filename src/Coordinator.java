@@ -24,6 +24,8 @@ public class Coordinator {
     String hotelAdd;                    //Address for hotel participant
     String concertAdd;                  //Address for concert participant.
 
+    CoordinatorThreads threadManager;
+
     /**
      * Constructor to setup a coordinator object. Sets up the config file and sets the initial
      * state to failed. Failed changes when we establish a running thread with a port.
@@ -33,8 +35,13 @@ public class Coordinator {
         configFile = new File(resourcePath+ "coordinator-config.txt");
         recoveryFile = new File(resourcePath+ "coordinator-recovery.txt");
 
-        openFiles(configFile, recoveryFile);
+        openFiles();
         setIAddresses();
+
+        CoordinatorThreads threadManager = new CoordinatorThreads(bookingFileReader);
+        CoordinatorThreads.OperationThread ot = threadManager.new OperationThread();
+        ot.run();
+
     }
 
     /*
@@ -42,7 +49,7 @@ public class Coordinator {
      * @param configFile
      * @param recoveryFile
      */
-    private void openFiles(File configFile, File recoveryFile){
+    private void openFiles(){
         try{
             configFileReader = new BufferedReader(new FileReader(configFile));
             recoveryFileWriter = new BufferedWriter(new FileWriter(recoveryFile));
@@ -113,6 +120,6 @@ public class Coordinator {
     public static void main(String[] args){
         Coordinator c = new Coordinator();
         c.printVars();
-        c.closeFiles();
+        //c.closeFiles();
     }
 }
