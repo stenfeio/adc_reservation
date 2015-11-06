@@ -124,23 +124,23 @@ public class CoordinatorThreads {
 
             try(     //TODO replace the hard code with the correct addresses
                     Socket requestSocket = new Socket("localhost", 7);//st.nextToken(), Integer.parseInt(st.nextToken()));
-                    PrintWriter out = new PrintWriter(requestSocket.getOutputStream(),true);
-                    BufferedReader in = new BufferedReader(new InputStreamReader(requestSocket.getInputStream()));
-                    //ObjectOutputStream outputStream = new ObjectOutputStream(requestSocket.getOutputStream());
-                    //ObjectInputStream inputStream = new ObjectInputStream(requestSocket.getInputStream())
+                    //PrintWriter out = new PrintWriter(requestSocket.getOutputStream(),true);
+                    //BufferedReader in = new BufferedReader(new InputStreamReader(requestSocket.getInputStream()));
+                    ObjectOutputStream outputStream = new ObjectOutputStream(requestSocket.getOutputStream());
+                    ObjectInputStream inputStream = new ObjectInputStream(requestSocket.getInputStream())
             ){
-                out.println(currentRequest.toString());
-                System.out.println("echo: " + in.readLine() +"\n");
+                //out.println(currentRequest.toString());
+                //System.out.println("echo: " + in.readLine() +"\n");
 
                 //send the request to the participant and waits to read a response
-                //outputStream.writeObject(currentRequest);
-                //responseRequest = (Request) inputStream.readObject();
+                outputStream.writeObject(currentRequest);
+                responseRequest = (Request) inputStream.readObject();
 
                 requestSocket.close();
-                out.close();
-                in.close();
-                //outputStream.close();
-                //inputStream.close();
+                //out.close();
+                //in.close();
+                outputStream.close();
+                inputStream.close();
 
             }
             catch(UnknownHostException e){
@@ -151,10 +151,9 @@ public class CoordinatorThreads {
                 System.err.println("Issue with communication IO");
                 e.printStackTrace();
             }
-//            catch(ClassNotFoundException e){
-//
-//            }
-
+            catch(ClassNotFoundException e){
+                System.err.println("Issue with passing objects to server...");
+            }
         }
     }
 
