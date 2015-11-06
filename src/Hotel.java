@@ -8,10 +8,6 @@ import java.io.IOException;
 import java.lang.*;
 
 
-import Coordinator.Status;
-import CoordinatorThreads.OperationThread;
-
-
 public class Hotel  {
     //TODO add instance variables saving the rooms here.
 	public int[] Rooms=new int[10];
@@ -21,7 +17,7 @@ public class Hotel  {
 	 public enum Status{
 	        NORMAL, RECOVERY, FAILED
 	    }
-    final String resourcePath = "C:\\Users\\Talal\\IdeaProjects\\adc_reservation\\resources\\";
+    final String resourcePath = System.getProperty("user.dir") + "\\resources\\";
     Status SYSTEM_STATUS;               //System status variable
 
 
@@ -49,8 +45,8 @@ public class Hotel  {
         //Reservation(day);							// pass the day on which the reservation has to be done(this user will provide)?
        	
         HotelThread threadManager = new HotelThread();
-        HotelThread.OperationThread ot = threadManager.new OperationThread();
-        ot.run();
+        //HotelThread.OperationThread ot = threadManager.new OperationThread();
+        //ot.run();
     	
     	
     }

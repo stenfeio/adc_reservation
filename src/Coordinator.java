@@ -8,7 +8,7 @@ public class Coordinator {
     }
 
     //path to resources
-    final String resourcePath = "C:\\Users\\Talal\\IdeaProjects\\adc_reservation\\resources\\";
+    final String resourcePath = System.getProperty("user.dir") + "\\resources\\";
 
     Status SYSTEM_STATUS;               //System status variable
 
