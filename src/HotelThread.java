@@ -55,7 +55,7 @@ import java.net.*;
 	                   System.out.println("Object accepted");
 	                   inStream = new ObjectInputStream(coordsocket.getInputStream());
 	                   System.out.println("Object got");
-	                   Request request = (Request) inStream.readObject();
+	                   Request request = (Request)inStream.readObject();
 	                   
 	                  //  InputStream is = coordsocket.getInputStream();
 	                  //  InputStreamReader isr = new InputStreamReader(is);
