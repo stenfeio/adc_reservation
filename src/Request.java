@@ -8,7 +8,9 @@ import java.util.List;
 public class Request {
 
     enum RStatus{
-        SUCCESS, FAILED
+
+        SUCCESS, FAILED, INVALID, UNCOMMITTED
+
     }
 
     RStatus status;     //Status of the request
@@ -17,7 +19,7 @@ public class Request {
     List<Integer> dates;        //dates array to be checked if available
 
     public Request(String id, int numberOfDays, List<Integer> dates){
-        this.status = RStatus.FAILED;
+        this.status = RStatus.UNCOMMITTED;
         this.id = id;
         this.numberOfDays = numberOfDays;
         this.dates = (ArrayList<Integer>)((ArrayList<Integer>)dates).clone();
@@ -25,6 +27,6 @@ public class Request {
 
     @Override
     public String toString(){
-        return "Status:" + status + " ID: " + id + " Number of days: "+ numberOfDays + " Dates: " + dates;
+        return "Status: " + status + " ID: " + id + " Number of days: "+ numberOfDays + " Dates: " + dates;
     }
 }
