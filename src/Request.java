@@ -9,7 +9,7 @@ import java.util.List;
 public class Request implements Serializable {
 
     enum RStatus{
-        SUCCESS, FAILED, INVALID
+        SUCCESS, FAILED, INVALID, UNCOMMITTED
     }
 
     RStatus status;     //Status of the request
@@ -25,7 +25,7 @@ public class Request implements Serializable {
     }
 
     public Request(String id, int numberOfDays, List<Integer> dates){
-        this.status = RStatus.FAILED;
+        this.status = RStatus.UNCOMMITTED;
         this.id = id;
         this.numberOfDays = numberOfDays;
         this.dates = (ArrayList<Integer>) ((ArrayList<Integer>)dates).clone();
@@ -33,6 +33,6 @@ public class Request implements Serializable {
 
     @Override
     public String toString(){
-        return "Status:" + status + " ID: " + id + " Number of days: "+ numberOfDays + " Dates: " + dates;
+        return "Status: " + status + " ID: " + id + " Number of days: "+ numberOfDays + " Dates: " + dates;
     }
 }

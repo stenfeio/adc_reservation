@@ -118,7 +118,7 @@ public class Coordinator {
         this.SYSTEM_STATUS = Status.NORMAL;
         try{
             ot.join();
-            ot.run();
+            ot.start();
         }catch (InterruptedException e){
             System.out.println("Operation thread interrupted...");
             e.printStackTrace();
@@ -136,7 +136,7 @@ public class Coordinator {
 
     public static void main(String[] args){
         Coordinator c = new Coordinator();
-        c.printVars();
+        //c.printVars();
         //c.closeFiles();
     }
 }
