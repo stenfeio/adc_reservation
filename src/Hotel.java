@@ -8,6 +8,8 @@ import java.io.IOException;
 import java.lang.*;
 
 
+import Coordinator.Status;
+import CoordinatorThreads.OperationThread;
 
 
 public class Hotel  {
@@ -44,8 +46,11 @@ public class Hotel  {
 
         openFiles(configurationFile, recoveryFile);
         Initialization();							// Initialize the no. of rooms as 8 for each day
-        Reservation(day);							// pass the day on which the reservation has to be done(this user will provide)?
-       				 			
+        //Reservation(day);							// pass the day on which the reservation has to be done(this user will provide)?
+       	
+        HotelThread threadManager = new HotelThread();
+        HotelThread.OperationThread ot = threadManager.new OperationThread();
+        ot.run();
     	
     	
     }
