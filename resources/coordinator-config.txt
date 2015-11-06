@@ -1,3 +1,3 @@
-128.0.0.1 4444
-128.0.0.1 6666
+localhost 7
+localhost 8
 coordinator-booking-file.txt

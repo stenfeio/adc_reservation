@@ -1,30 +1,38 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
+import java.io.*;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * This class serves as a grouping class for the threads that will run on the coordinator.
+ * This class serves as a grouping class for the threads
+ * that will run on the coordinator.
  */
 public class CoordinatorThreads {
 
-    BufferedReader bookingFileReader;                   //reader for booking requests
-    List<String> requestArray = new ArrayList<>();      //contains string of requests for participants
-    List<Request> requestsList = new ArrayList<>();     //contains all Requests for participants
+    BufferedReader bookingFileReader;                           //reader for booking requests
+    String hotelAdd, concertAdd;                                //addresses for hotel and concert
+    List<String> requestStringList = new ArrayList<>();         //contains string of requests for participants
+    List<Request> requestObjectList = new ArrayList<>();        //contains all Requests for participants
 
     /**
-     * Contructor that takes in the bookingFileReader in order to read the booking requests
+     * Contructor that takes in the bookingFileReader
+     * hotelAdd and concertAdd in order to initialize
+     * the booking requests.
      * @param bookingFileReader
+     * @param hotelAdd
+     * @param concertAdd
      */
-    public CoordinatorThreads(BufferedReader bookingFileReader){
+    public CoordinatorThreads(BufferedReader bookingFileReader, String hotelAdd, String concertAdd){
         if(bookingFileReader != null)
             this.bookingFileReader = bookingFileReader;
 
-
+        this.hotelAdd = hotelAdd;
+        this.concertAdd = concertAdd;
     }
 
     /**
-     * Private thread that handles opening the incoming socket
+     * Thread that handles opening the incoming socket
      */
     protected class IncomingThread extends Thread{
         //TODO open incoming socket
@@ -34,9 +42,43 @@ public class CoordinatorThreads {
         }
     }
 
+    /**
+     * Thread that handles passing the request to the
+     * hotel and concert participants and waits for feedback
+     * from them.
+     */
     protected class OutgoingThread extends Thread{
+        Request currentRequest;     //current request to handle
+
+        public OutgoingThread(Request currentRequest){
+            this.currentRequest = currentRequest;
+        }
+
         @Override
         public void run() {
+            try(     //TODO replace the hard code with the correct addresses
+                    Socket requestSocket = new Socket("localhost", 7);
+                    PrintWriter out = new PrintWriter(requestSocket.getOutputStream(),true);
+                    BufferedReader in = new BufferedReader(new InputStreamReader(requestSocket.getInputStream()));
+                    ObjectOutputStream outputStream = new ObjectOutputStream(requestSocket.getOutputStream());
+                    ObjectInputStream inputStream = new ObjectInputStream(requestSocket.getInputStream())
+            ){
+                out.println(currentRequest.toString());
+                System.out.println("echo: " + in.readLine() +"");
+
+                requestSocket.close();
+                out.close();
+                in.close();
+                outputStream.close();
+                inputStream.close();
+
+            }catch(UnknownHostException e){
+                System.err.println("Issue when finding other participants...");
+                e.printStackTrace();
+            }catch (IOException e){
+                System.err.println("Issue with communication IO");
+                e.printStackTrace();
+            }
 
         }
     }
@@ -51,7 +93,7 @@ public class CoordinatorThreads {
     /**
      * This class is a thread that handles reading the requests
      * from the bookingRequests file and populates the request list.
-     * It should also handle forwarding the resquests to the outgoing
+     * It should also handle forwarding the requests to the outgoing
      * thread.
      */
     protected class OperationThread extends Thread{
@@ -61,28 +103,38 @@ public class CoordinatorThreads {
 
             try {
                 while ((tempRequest = bookingFileReader.readLine()) != null) {
-                    requestArray.add(tempRequest);
+                    requestStringList.add(tempRequest);
                 }
                 System.out.println("Requests loaded into request list...");
 
                 //closes the bookingFileReader after populating the request array
                 bookingFileReader.close();
 
-                //TODO parse the requests to make sense of them
-                //converts string requests into Request objects
-                for(int i = 0; i < requestArray.size(); i++) {
-                    requestsList.add(parseRequest(requestArray.get(i)));
-                    System.out.println(requestsList.get(i));
+
+                //converts string requests into Request objects and adds to requestObjectList
+                for(int i = 0; i < requestStringList.size(); i++) {
+                    requestObjectList.add(parseRequest(requestStringList.get(i)));
                 }
 
-            }catch(Exception e){
+                // this part loops over all the requests and starts an outgoing thread for each of them
+                for(int i = 0; i < requestObjectList.size(); i++) {
+                    System.out.println("Processing request: " + requestObjectList.get(i));
+                    OutgoingThread outgoingThread = new OutgoingThread(requestObjectList.get(i));
+                    outgoingThread.run();
+                    outgoingThread.join();
+                }
+
+            }catch(IOException e){
                 System.err.println("Could not read from booking file in coordinator operation thread...");
+                e.printStackTrace();
+            }catch (InterruptedException e){
+                System.err.println("Interruption with outgoing threads...");
                 e.printStackTrace();
             }
         }
 
         /*
-        Helper method whose job is to convert string requests to Request objects.
+         *Helper method whose job is to convert string requests to Request objects.
          */
         private Request parseRequest(String request){
             String[] tempStrings = request.replace("[", "").replace("]", "").split("\\s");
@@ -93,8 +145,8 @@ public class CoordinatorThreads {
             for (int i = 2; i < tempStrings.length; i++){
                 dates.add(Integer.parseInt(tempStrings[i]));
             }
-            Request tempRequest = new Request(tempId, tempNumberOfDays, dates);
 
+            Request tempRequest = new Request(tempId, tempNumberOfDays, dates);
             return tempRequest;
         }
     }
