@@ -8,20 +8,17 @@ import java.io.IOException;
 import java.lang.*;
 
 
-import Coordinator.Status;
-import CoordinatorThreads.OperationThread;
-
-
 public class Hotel  {
     //TODO add instance variables saving the rooms here.
 	public int[] Rooms=new int[10];
 	int day;
 	String CoordinatorAdd;     //Address for Coordinator
 	//path to resources
+	
 	 public enum Status{
 	        NORMAL, RECOVERY, FAILED
 	    }
-    final String resourcePath = "C:\\Users\\Talal\\IdeaProjects\\adc_reservation\\resources\\";
+    final String resourcePath = "C:\\Users\\chuthki\\Documents\\GitHub\\adc_reservation\\resources\\";
     Status SYSTEM_STATUS;               //System status variable
 
 
@@ -44,13 +41,14 @@ public class Hotel  {
         configurationFile = new File(resourcePath+ "hotel-configuration-file.txt");
         recoveryFile = new File(resourcePath+ "coordinator-recovery.txt");
 
-        openFiles(configurationFile, recoveryFile);
+        //openFiles();
         Initialization();							// Initialize the no. of rooms as 8 for each day
         //Reservation(day);							// pass the day on which the reservation has to be done(this user will provide)?
        	
-        HotelThread threadManager = new HotelThread();
-        HotelThread.OperationThread ot = threadManager.new OperationThread();
-        ot.run();
+        HotelThread threadManager = new HotelThread(this);
+        threadManager.run();
+       // HotelThread.OperationThread ot = threadManager.new OperationThread();
+        //ot.run();
     	
     	
     }
@@ -73,8 +71,9 @@ public class Hotel  {
      */
     private void Initialization(){
         String line;
+        openFiles();
         System.out.println("Reading from config file...");
-        if (configurationFileReader != null) {
+        if (configurationFileReader!= null) {
             try {
                 line = configurationFileReader.readLine();							//reads the address of the coordinator given in file
                 CoordinatorAdd= line;
@@ -85,6 +84,7 @@ public class Hotel  {
                 temp=line.split(delimiter);
                 Rooms[i]=Integer.valueOf(temp[1]);		                              //Initialize the rooms with the value given in file
                // concertAdd = line;
+                System.out.println("Rooms on the day"+i+"  " +Rooms[i]);
                 }
 
                 line = configurationFileReader.readLine();
@@ -103,7 +103,7 @@ public class Hotel  {
      * @param Hotel-configurationFile
      * @param recoveryFile
      */
-    private void openFiles(File configurationFile, File recoveryFile){
+    private void openFiles(){
         try{
             configurationFileReader = new BufferedReader(new FileReader(configurationFile));
             recoveryFileWriter = new BufferedWriter(new FileWriter(recoveryFile));
@@ -128,5 +128,8 @@ public class Hotel  {
 			else
 				System.out.println("Room not available for this day");
 	}
+		public static void main(String[] args){
+			Hotel h=new Hotel();
+		}
 }
 
