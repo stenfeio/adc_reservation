@@ -25,7 +25,7 @@ import java.net.*;
 	    public class HotelThread extends Thread{
 	      
 
-	    
+	    Hotel hotel;
 	    /**
 	     * Private thread that handles opening the incoming socket
 	     */
@@ -35,7 +35,10 @@ import java.net.*;
 	        Socket coordsocket;
 	        ObjectInputStream inStream=null;
 	        ObjectOutputStream outstream=null;
-	        Hotel h=new Hotel();
+	        //Hotel h=new Hotel();
+	        HotelThread(Hotel h){
+	        	hotel=h;
+	        }
 	        public void run() {
 	        	 
 	        	try
@@ -115,7 +118,7 @@ import java.net.*;
 	   Request checkstatus(Request request){
 		   for(int i=0;i<9;i++){
 			 
-		   if(h.Rooms[request.dates.get(i)]!=0)
+		   if(hotel.Rooms[request.dates.get(i)]!=0)
 		   request.status=Request.RStatus.SUCCESS;
 		   else
 			   request.status=Request.RStatus.FAILED;
