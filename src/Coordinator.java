@@ -38,9 +38,9 @@ public class Coordinator {
         openFiles();
         setIAddresses();
 
-        CoordinatorThreads threadManager = new CoordinatorThreads(bookingFileReader);
-        CoordinatorThreads.OperationThread ot = threadManager.new OperationThread();
-        ot.run();
+        //Initializes the thread manager with a handle to the booking file
+        threadManager = new CoordinatorThreads(bookingFileReader, hotelAdd, concertAdd);
+        initializeThreads();
 
     }
 
@@ -107,6 +107,23 @@ public class Coordinator {
                 e.printStackTrace();
             }
         }
+    }
+
+    /*
+    The goal of this method is to initialize the threads that run on the coordinator
+     */
+    private void initializeThreads(){
+        CoordinatorThreads.OperationThread ot = threadManager.new OperationThread();
+
+        this.SYSTEM_STATUS = Status.NORMAL;
+        try{
+            ot.join();
+            ot.run();
+        }catch (InterruptedException e){
+            System.out.println("Operation thread interrupted...");
+            e.printStackTrace();
+        }
+
     }
 
     /*
