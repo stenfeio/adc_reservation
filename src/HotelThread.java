@@ -44,7 +44,7 @@ import java.net.*;
 	        	try
 	            {
 	     
-	                int port = 8080;
+	                int port = 7;
 	                ServerSocket serverSocket = new ServerSocket(port);
 	                System.out.println("Server Started and listening");
 	     
@@ -54,13 +54,14 @@ import java.net.*;
 	                    //Reading the message from the client
 	                   coordsocket = serverSocket.accept();
 	                   inStream = new ObjectInputStream(coordsocket.getInputStream());
-	                   Request request = (Request) inStream.readObject();
+                        Request request = (Request) inStream.readObject();
 	                  //  InputStream is = coordsocket.getInputStream();
 	                  //  InputStreamReader isr = new InputStreamReader(is);
 	                   // BufferedReader br = new BufferedReader(isr);
 	                  //  String object = br.readLine();
 	                    System.out.println("Object recieved "+request);
-	                 
+						outstream = new ObjectOutputStream(coordsocket.getOutputStream());
+						outstream.writeObject(request);
 	     
 	                    //Multiplying the number by 2 and forming the return message
 	                    String returnMessage;
@@ -73,8 +74,6 @@ import java.net.*;
 		                        returnMessage = String.valueOf(returnValue) + "\n";
 	                    	 outstream = new ObjectOutputStream(coordsocket.getOutputStream());
 	                    	 outstream.writeObject(request1);
-	                    	
-	                    	
 	                    }	
 	                    else{
 	                    	String returnValue = "Recovery";
@@ -119,11 +118,9 @@ import java.net.*;
 		   for(int i=0;i<9;i++){
 			 
 		   if(hotel.Rooms[request.dates.get(i)]!=0)
-		   request.status=Request.RStatus.SUCCESS;
+			   request.status=Request.RStatus.SUCCESS;
 		   else
 			   request.status=Request.RStatus.FAILED;
-		 
-		   
 		   }
 		   return request;
 	   }

@@ -1,3 +1,4 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -5,12 +6,9 @@ import java.util.List;
  * This class will be used to provide a template for the booking requests over the network
  * It will consist of values that will be parsed on the coordinator side and accepted on the client side.
  */
-public class Request {
-
+public class Request implements Serializable {
     enum RStatus{
-
         SUCCESS, FAILED, INVALID, UNCOMMITTED
-
     }
 
     RStatus status;     //Status of the request

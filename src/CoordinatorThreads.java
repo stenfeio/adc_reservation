@@ -58,12 +58,17 @@ public class CoordinatorThreads {
                 }
 
                 // this part loops over all the requests and starts an outgoing thread for each of them
-                for(int i = 0; i < requestObjectList.size(); i++) {
-                    System.out.println("Processing request: " + requestObjectList.get(i));
-                    OutgoingThread outgoingThread = new OutgoingThread(requestObjectList.get(i));
-                    outgoingThread.start();
-                    outgoingThread.join();
-                }
+//                for(int i = 0; i < requestObjectList.size(); i++) {
+//                    System.out.println("Processing request: " + requestObjectList.get(i));
+//                    OutgoingThread outgoingThread = new OutgoingThread(requestObjectList.get(i));
+//                    outgoingThread.start();
+//                    outgoingThread.join();
+//                }
+
+                System.out.println("Processing request: " + requestObjectList.get(0));
+                OutgoingThread outgoingThread = new OutgoingThread(requestObjectList.get(0));
+                outgoingThread.start();
+                outgoingThread.join();
 
             }catch(IOException e){
                 System.err.println("Could not read from booking file in coordinator operation thread...");
@@ -120,28 +125,26 @@ public class CoordinatorThreads {
         @Override
         public void run() {
             StringTokenizer st = new StringTokenizer(hotelAdd);
-            System.out.println("Connecting to " + hotelAdd);
-
-            try(     //TODO replace the hard code with the correct addresses
+            System.out.println("Connecting to address: " + hotelAdd);
+            try(
+                    //TODO replace the hard code with the correct addresses
                     Socket requestSocket = new Socket("localhost", 7);//st.nextToken(), Integer.parseInt(st.nextToken()));
                     //PrintWriter out = new PrintWriter(requestSocket.getOutputStream(),true);
                     //BufferedReader in = new BufferedReader(new InputStreamReader(requestSocket.getInputStream()));
-                    ObjectOutputStream outputStream = new ObjectOutputStream(requestSocket.getOutputStream());
-                    ObjectInputStream inputStream = new ObjectInputStream(requestSocket.getInputStream())
+                    ObjectOutputStream socketOut = new ObjectOutputStream(requestSocket.getOutputStream());
             ){
+                requestSocket.setSoTimeout(10000);
+
                 //out.println(currentRequest.toString());
                 //System.out.println("echo: " + in.readLine() +"\n");
 
                 //send the request to the participant and waits to read a response
-                outputStream.writeObject(currentRequest);
-                responseRequest = (Request) inputStream.readObject();
+                socketOut.writeObject(currentRequest);
+                socketOut.flush();
 
-                requestSocket.close();
-                //out.close();
-                //in.close();
-                outputStream.close();
-                inputStream.close();
-
+                ObjectInputStream socketIn = new ObjectInputStream(requestSocket.getInputStream());
+                responseRequest = (Request) socketIn.readObject();
+                System.out.println(responseRequest);
             }
             catch(UnknownHostException e){
                 System.err.println("Issue when finding other participants...");

@@ -17,14 +17,11 @@ public class Hotel  {
 	
 	 public enum Status{
 	        NORMAL, RECOVERY, FAILED
-	    }
-<<<<<<< HEAD
-    final String resourcePath = System.getProperty("user.dir") + "\\resources\\";
-=======
-    final String resourcePath = "C:\\Users\\chuthki\\Documents\\GitHub\\adc_reservation\\resources\\";
->>>>>>> 4b3eb391863e57fa87df7204d2efa3b5f8ed139a
-    Status SYSTEM_STATUS;               //System status variable
+     }
 
+    final String resourcePath = System.getProperty("user.dir") + "\\resources\\";
+
+    Status SYSTEM_STATUS;               //System status variable
 
     File recoveryFile;                  //Defines recovery file path
     BufferedWriter recoveryFileWriter;  //Defines recover file writer
@@ -120,7 +117,6 @@ public class Hotel  {
             e.printStackTrace();
         }
     }
-
 	
 	//Check if the reservation of the rooms can be done on particular day or not
 		void Reservation(int day){						// day for which reservation to be done
