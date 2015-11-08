@@ -26,15 +26,7 @@ public class Hotel  {
 
     File configurationFile;				//Defines hotel configuration path
     BufferedReader configurationFileReader;    //Defines hotel configuration reader
-	/*public Hotel(Rooms p1, Concert p2){
-
-        for(int i=0;i<10;i++){
-			int j=i+1;
-			if(p1.AvailRooms[i]==true && p2.ConcertDays[i]==true){
-				System.out.println("Reservation can be done on day"+j);
-			}
-		}
-	}*/
+	
     public Hotel(){
         SYSTEM_STATUS = Coordinator.Status.FAILED;
         configurationFile = new File(resourcePath+ "hotel-configuration-file.txt");
@@ -116,17 +108,7 @@ public class Hotel  {
             e.printStackTrace();
         }
     }
-	
-	//Check if the reservation of the rooms can be done on particular day or not
-		void Reservation(int day){						// day for which reservation to be done
-			
-			if(Rooms[day]!=0){
-				System.out.println("Reservation done");
-		Rooms[day]=Rooms[day]-1;
-			}
-			else
-				System.out.println("Room not available for this day");
-	}
+		
 		public static void main(String[] args){
 			Hotel h=new Hotel();
 		}

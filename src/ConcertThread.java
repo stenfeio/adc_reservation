@@ -7,25 +7,22 @@ import java.net.*;
 
 
 	/**
-	 * This class serves as a grouping class for the threads that will run on the Hotel.
+	 * This class serves as a grouping class for the threads that will run on the Concert.
 
 	    List<String> requestArray = new ArrayList<>();      //contains string of requests for participants
 	    List<Request> requestsList = new ArrayList<>();     //contains all Requests for participants
 
-	    /**
-	     * Contructor that takes in the bookingFileReader in order to read the booking requests
-	     * @param bookingFileReader
-	     */
+	   
 
 
 	 /**
      * Contructor that takes in the lists of Request in order to read the booking requests
      * @param bookingFileReader
      */
-	    public class HotelThread extends Thread{
+	    public class ConcertThread extends Thread{
 	      
 
-	    Hotel hotel;
+	   Concert concert;
 	    /**
 	     * Private thread that handles opening the incoming socket
 	     */
@@ -35,9 +32,12 @@ import java.net.*;
 	        Socket coordsocket;
 	        ObjectInputStream inStream=null;
 	        ObjectOutputStream outstream=null;
-	        //Hotel h=new Hotel();
-	        HotelThread(Hotel h){
-	        	hotel=h;
+	        ObjectInputStream inStream1=null;
+	       // Thread conthread;
+	        
+	       ConcertThread(Concert c){
+	        	concert=c;
+	        	
 	        }
 	        public void run() {
 	        	 
@@ -45,33 +45,44 @@ import java.net.*;
 	            {
 	     
 	                int port = 7;
-	                ServerSocket serverSocket = new ServerSocket(port);
+	                ServerSocket serverSocketcon = new ServerSocket(port);
 	                System.out.println("Server Started and listening");
-	               hotel.SYSTEM_STATUS= Coordinator.Status.NORMAL;
+	               concert.SYSTEM_STATUS= Coordinator.Status.NORMAL;
 	     
 	                //Server is running always. This is done using this while(true) loop
 	                while(true){
 	                    //Reading the message from the client
-	                     coordsocket = serverSocket.accept();
-	                     System.out.println("Object accepted");
+	                     coordsocket = serverSocketcon.accept();
+	                   //  System.out.println("Object accepted");
 	                     inStream = new ObjectInputStream(coordsocket.getInputStream());
-	                     Request request = (Request) inStream.readObject();
+	                     Request request = (Request)inStream.readObject();
                          System.out.println("Object recieved "+request);
                          
+                         
+                         
                          //Check the system status
-                         if( hotel.SYSTEM_STATUS== Coordinator.Status.NORMAL){
-	                     Request request1= checkstatus(request);		//Call the method to check availability of rooms
+                         if( concert.SYSTEM_STATUS== Coordinator.Status.NORMAL){
+                        	 Request request1= checkstatus(request);		//Call the method to check availability of rooms
                    	     System.out.println(request1);
-                   	     
+                   	  
                    	     //Writing the object to the client
-                   	     outstream = new ObjectOutputStream(coordsocket.getOutputStream());
+                   	     outstream = new ObjectOutputStream(coordsocket.getOutputStream()); 
                	         outstream.writeObject(request1);
+               	      
                	         System.out.println("Message sent to the client is "+request1);
+               	         //outstream.flush();
                	         
                	         //Read the object again to check if the reservation can be done or not
+               	        // conthread.wait(10);
+               	         
+               	    
+               	    
+               	      
                	         Request req=(Request)inStream.readObject();
-               	         if(req.status==Request.RStatus.SUCCESS)
+               	         if(req.status==Request.RStatus.SUCCESS){
+               	        	 System.out.println("go in reserv");
                	         Reservation(req);
+               	         }
                          }
 	                  
 	                  /*  try
@@ -120,7 +131,7 @@ import java.net.*;
 		 	int[] n=new int[request.dates.size()];
 		 	int temp=0;
 		   for(int i=0;i<request.dates.size();i++){
-		   if(hotel.Rooms[n[i]]<=0)
+		   if(concert.Tickets[n[i]]<=0)
 			   temp++;
 		   }
 		   if(temp==0)
@@ -133,7 +144,7 @@ import java.net.*;
 	 public void Reservation(Request request){
 		 int[] n=new int[request.dates.size()];
 		 for(int i=0;i<request.dates.size();i++){
-			   hotel.Rooms[n[i]]=hotel.Rooms[n[i]]-1;
+			   concert.Tickets[n[i]]=concert.Tickets[n[i]]-1;
 				  
 			   }
 	 }

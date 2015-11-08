@@ -166,6 +166,7 @@ public class CoordinatorThreads {
                         recoveryFileWriter.writeObject(currentRequest);
                     }
                 }
+
                 else
                     System.out.println("Coordinator is in non-normal state! Will not receive requests");
 
