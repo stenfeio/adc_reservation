@@ -44,7 +44,7 @@ import java.net.*;
 	        	try
 	            {
 	     
-	                int port = 7;
+	                int port = 8;
 	                ServerSocket serverSocketcon = new ServerSocket(port);
 	                System.out.println("Server Started and listening");
 	               concert.SYSTEM_STATUS= Coordinator.Status.NORMAL;

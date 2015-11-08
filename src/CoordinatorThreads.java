@@ -164,9 +164,16 @@ public class CoordinatorThreads {
                         hotelSocketOut.writeObject(currentRequest);
                         concertSocketOut.writeObject(currentRequest);
                         recoveryFileWriter.writeObject(currentRequest);
+                    }else{
+                        currentRequest.status = Request.RStatus.FAILED;
+                        System.out.println("Cancel Booking: " + currentRequest);
+
+                        //confirm result of vote
+                        hotelSocketOut.writeObject(currentRequest);
+                        concertSocketOut.writeObject(currentRequest);
+                        recoveryFileWriter.writeObject(currentRequest);
                     }
                 }
-
                 else
                     System.out.println("Coordinator is in non-normal state! Will not receive requests");
 
