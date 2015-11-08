@@ -83,8 +83,8 @@ public class Hotel  {
                 line = configurationFileReader.readLine();
                 String delimiter = " ";
                 temp=line.split(delimiter);
-              //  Rooms[i]=Integer.valueOf(temp[1]);		                              //Initialize the rooms with the value given in file
-                Rooms[i]=0;
+                Rooms[i]=Integer.valueOf(temp[1]);		                              //Initialize the rooms with the value given in file
+               
                 // concertAdd = line;
                 System.out.println("Rooms on the day"+i+"  " +Rooms[i]);
                 }
