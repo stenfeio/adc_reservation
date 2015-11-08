@@ -141,13 +141,12 @@ public class CoordinatorThreads {
 
                     //send the request to the participant and waits to read a response
                     socketOut.writeObject(currentRequest);
-                    socketOut.flush();
+                    ObjectInputStream socketIn = new ObjectInputStream(requestSocket.getInputStream());
+                    responseRequest = (Request) socketIn.readObject();
+                    socketOut.writeObject(responseRequest);
+                    //socketOut.flush();
                 }
 
-                ObjectInputStream socketIn = new ObjectInputStream(requestSocket.getInputStream());
-                if(currentSystemStatus == Coordinator.Status.NORMAL){
-                    responseRequest = (Request) socketIn.readObject();
-                }
                 else
                     System.out.println("Coordinator is in non-normal state! Will not receive requests");
 
