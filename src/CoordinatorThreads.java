@@ -74,11 +74,6 @@ public class CoordinatorThreads {
                     outgoingThread.join();
                 }
 
-//                System.out.println("Processing request: " + requestObjectList.get(0));
-//                OutgoingThread outgoingThread = new OutgoingThread(requestObjectList.get(0));
-//                outgoingThread.start();
-//                outgoingThread.join();
-
             }catch(IOException e){
                 System.err.println("Could not read from booking file in coordinator operation thread...");
                 e.printStackTrace();
@@ -122,7 +117,8 @@ public class CoordinatorThreads {
      */
     protected class OutgoingThread extends Thread{
         Request currentRequest;     //current request to handle
-        Request responseRequest;    //the response request from the participant
+        Request hotelResponse;    //the response request from the participant
+        Request concertResponse;
 
         public OutgoingThread(Request currentRequest){
             this.currentRequest = currentRequest;
@@ -130,30 +126,49 @@ public class CoordinatorThreads {
 
         @Override
         public void run() {
-            StringTokenizer st = new StringTokenizer(hotelAdd);
+            StringTokenizer hStringT = new StringTokenizer(hotelAdd);
+            StringTokenizer cStringT = new StringTokenizer(concertAdd);
+
             System.out.println("Connecting to address: " + hotelAdd);
+            System.out.println("Connecting to address: " + concertAdd);
+
             try(
                     //TODO replace the hard code with the correct addresses
-                    Socket requestSocket = new Socket("localhost", 7);//st.nextToken(), Integer.parseInt(st.nextToken()));
+                    Socket hotelRequestSocket = new Socket(hStringT.nextToken(), Integer.parseInt(hStringT.nextToken()));
+                    Socket concertRequestSocket = new Socket(cStringT.nextToken(), Integer.parseInt(cStringT.nextToken()))
             ){
                 if(currentSystemStatus == Coordinator.Status.NORMAL) {
-                    ObjectOutputStream socketOut = new ObjectOutputStream(requestSocket.getOutputStream());
+                    ObjectOutputStream hotelSocketOut = new ObjectOutputStream(hotelRequestSocket.getOutputStream());
+                    ObjectOutputStream concertSocketOut = new ObjectOutputStream(concertRequestSocket.getOutputStream());
 
                     //send the request to the participant and waits to read a response
-                    socketOut.writeObject(currentRequest);
-                    socketOut.flush();
-                }
+                    hotelSocketOut.writeObject(currentRequest);
+                    hotelSocketOut.flush();
 
-                ObjectInputStream socketIn = new ObjectInputStream(requestSocket.getInputStream());
-                if(currentSystemStatus == Coordinator.Status.NORMAL){
-                    responseRequest = (Request) socketIn.readObject();
+                    concertSocketOut.writeObject(currentRequest);
+                    concertSocketOut.flush();
+
+                    ObjectInputStream hotelSocketIn = new ObjectInputStream(hotelRequestSocket.getInputStream());
+                    hotelResponse = (Request) hotelSocketIn.readObject();
+
+                    ObjectInputStream concertSocketIn = new ObjectInputStream(concertRequestSocket.getInputStream());
+                    concertResponse = (Request) concertSocketIn.readObject();
+
+                    if(concertResponse.status == Request.RStatus.SUCCESS &&
+                            hotelResponse.status == Request.RStatus.SUCCESS){
+                        //TODO write the response Request to the recovery file delay to end
+                        currentRequest.status = Request.RStatus.SUCCESS;
+                        System.out.println("Booked: " + currentRequest);
+
+                        //confirm result of vote
+                        hotelSocketOut.writeObject(currentRequest);
+                        concertSocketOut.writeObject(currentRequest);
+                        recoveryFileWriter.writeObject(currentRequest);
+                    }
                 }
                 else
                     System.out.println("Coordinator is in non-normal state! Will not receive requests");
 
-                //TODO write the response Request to the recovery file
-                System.out.println("Received : " + responseRequest);
-                recoveryFileWriter.writeObject(responseRequest);
             }
             catch(UnknownHostException e){
                 System.err.println("Issue when finding other participants...");
