@@ -47,61 +47,55 @@ import java.net.*;
 	                int port = 7;
 	                ServerSocket serverSocket = new ServerSocket(port);
 	                System.out.println("Server Started and listening");
+	               hotel.SYSTEM_STATUS= Hotel.Status.NORMAL;
 	     
 	                //Server is running always. This is done using this while(true) loop
-	               
+	                while(true){
 	                    //Reading the message from the client
-	                   coordsocket = serverSocket.accept();
-	                   System.out.println("Object accepted");
-	                   inStream = new ObjectInputStream(coordsocket.getInputStream());
-
-                        Request request = (Request) inStream.readObject();
-                  //  InputStream is = coordsocket.getInputStream();
-	                  //  InputStreamReader isr = new InputStreamReader(is);
-	                   // BufferedReader br = new BufferedReader(isr);
-	                  //  String object = br.readLine();
-	                    System.out.println("Object recieved "+request);
-						outstream = new ObjectOutputStream(coordsocket.getOutputStream());
-						outstream.writeObject(request);
-	     
-	                    //Multiplying the number by 2 and forming the return message
-	                    String returnMessage;
-	                    try
+	                     coordsocket = serverSocket.accept();
+	                     System.out.println("Object accepted");
+	                     inStream = new ObjectInputStream(coordsocket.getInputStream());
+	                     Request request = (Request) inStream.readObject();
+                         System.out.println("Object recieved "+request);
+                         
+                         //Check the system status
+                         if( hotel.SYSTEM_STATUS== Hotel.Status.NORMAL){
+	                     Request request1= checkstatus(request);		//Call the method to check availability of rooms
+                   	     System.out.println(request1);
+                   	     
+                   	     //Writing the object to the client
+                   	     outstream = new ObjectOutputStream(coordsocket.getOutputStream());
+               	         outstream.writeObject(request1);
+               	         System.out.println("Message sent to the client is "+request1);
+                         }
+	                  
+	                  /*  try
 	                    {	//Check if the object is passed with the correct parameter or not
 	                    	System.out.println("checks the paraemeter of the object");
-	                    	if(request!=null|| request.id!=null ||request.dates!=null|| request.numberOfDays!=0 ||request.status!=null){
+	                    	if(request.id!=null ||request.dates!=null|| request.numberOfDays!=0 ||request.status!=null){
 	                    		System.out.println("correct");
-	                    	 Request request1= checkstatus(request);
-	                    	 String returnValue = "Success";
-		                        returnMessage = String.valueOf(returnValue) + "\n";
 	                    	 outstream = new ObjectOutputStream(coordsocket.getOutputStream());
 	                    	 outstream.writeObject(request1);
+	                    	 System.out.println("Message sent to the client is "+request1);
 	                    }	
 	                    else{
-	                    	String returnValue = "Recovery";
-	                        returnMessage = String.valueOf(returnValue) + "\n";
 	                        outstream = new ObjectOutputStream(coordsocket.getOutputStream());
 	                        outstream.writeObject(request);
+	                       
 	                    }
 	                    }
 	                    catch(Exception e)
 	                    {
 	                       
-	                        returnMessage = "Please send a proper object\n";
 	                    }
-	                   // Request request1= checkstatus(request);  
-	                    //Sending the response back to the client.
-	                    
-	                    //outstream = new ObjectOutputStream(coordsocket.getOutputStream());
-	                  //  Request request= new Request();
-	                 //   outstream.writeObject(request1);
-	                   // OutputStreamWriter osw = new OutputStreamWriter(os);
-	                  //  BufferedWriter bw = new BufferedWriter(osw);
-	                  //  bw.write(returnMessage);
-	                    System.out.println("Message sent to the client is "+returnMessage);
-	                  //  bw.flush();
-	                
+	                  
+				                   OutputStreamWriter osw = new OutputStreamWriter(os);
+				                   BufferedWriter bw = new BufferedWriter(osw);
+				                   bw.write(returnMessage);
+				                   bw.flush();
+	                 */
 	            }
+	           }
 	            catch (Exception e)
 	            {
 	                e.printStackTrace();
@@ -116,24 +110,28 @@ import java.net.*;
 	            }
 	        }
 	    
-	   Request checkstatus(Request request){
-		   for(int i=0;i<9;i++){
-			 
-		   if(hotel.Rooms[request.dates.get(i)]!=0)
+	        /* Method to perform operation on the object*/
+	 public  Request checkstatus(Request request){
+		 	int[] n=new int[request.dates.size()];
+		 	int temp=0;
+		   for(int i=0;i<request.dates.size();i++){
+		   if(hotel.Rooms[n[i]]<=0)
+			   temp++;
+		   }
+		   if(temp==0)
 			   request.status=Request.RStatus.SUCCESS;
 		   else
 			   request.status=Request.RStatus.FAILED;
-		   }
 		   return request;
 	   }
 	   
-
-	    protected class FailRecoverThread extends Thread{
+	        
+	 /*   protected class FailRecoverThread extends Thread{
 	        @Override
 	        public void run() {
 
 	        }
-	    }
+	    }*/
 
 	    /**
 	     * This class is a thread that handles reading the requests
@@ -146,3 +144,4 @@ import java.net.*;
 	
 
 }
+
