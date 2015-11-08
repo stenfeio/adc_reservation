@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class Request implements Serializable {
     enum RStatus{
-        SUCCESS, FAILED, INVALID, UNCOMMITTED
+        SUCCESS, FAILED, REQUESTTING, INVALID
     }
 
     RStatus status;     //Status of the request
@@ -17,7 +17,7 @@ public class Request implements Serializable {
     List<Integer> dates;        //dates array to be checked if available
 
     public Request(String id, int numberOfDays, List<Integer> dates){
-        this.status = RStatus.UNCOMMITTED;
+        this.status = RStatus.REQUESTTING;
         this.id = id;
         this.numberOfDays = numberOfDays;
         this.dates = (ArrayList<Integer>)((ArrayList<Integer>)dates).clone();

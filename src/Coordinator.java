@@ -19,7 +19,7 @@ public class Coordinator {
     BufferedReader bookingFileReader;   //Defines booking file reader
 
     File recoveryFile;                  //Defines recovery file path
-    BufferedWriter recoveryFileWriter;  //Defines recover file writer
+    ObjectOutputStream recoveryFileWriter;  //Defines recover file writer
 
     String hotelAdd;                    //Address for hotel participant
     String concertAdd;                  //Address for concert participant.
@@ -39,20 +39,16 @@ public class Coordinator {
         setIAddresses();
 
         //Initializes the thread manager with a handle to the booking file
-        threadManager = new CoordinatorThreads(bookingFileReader, hotelAdd, concertAdd);
+        this.SYSTEM_STATUS = Status.NORMAL;
+        threadManager = new CoordinatorThreads(bookingFileReader, recoveryFileWriter, hotelAdd, concertAdd, SYSTEM_STATUS);
         initializeThreads();
-
     }
 
-    /*
-     * Helper method to open files. Throws exceptions if files not found.
-     * @param configFile
-     * @param recoveryFile
-     */
+    /*Helper method to open files. Throws exceptions if files not found */
     private void openFiles(){
         try{
             configFileReader = new BufferedReader(new FileReader(configFile));
-            recoveryFileWriter = new BufferedWriter(new FileWriter(recoveryFile));
+            recoveryFileWriter = new ObjectOutputStream(new FileOutputStream(recoveryFile));
 
         }catch(FileNotFoundException e){
             System.err.println("Could not find config file...");
@@ -63,9 +59,7 @@ public class Coordinator {
         }
     }
 
-    /*
-     * Helper method to close files. Throws IOException if somethings wrong.
-     */
+    /*Helper method to close files. Throws IOException if somethings wrong.*/
     private void closeFiles(){
         try{
             if (configFileReader != null)
@@ -81,9 +75,7 @@ public class Coordinator {
         }
     }
 
-    /*
-     * Helper method to set the values of the other participants and opens the reservation file.
-     */
+    /*Helper method to set the values of the other participants and opens the reservation file.*/
     private void setIAddresses(){
         String line;
         System.out.println("Reading from config file...");
@@ -109,13 +101,10 @@ public class Coordinator {
         }
     }
 
-    /*
-    The goal of this method is to initialize the threads that run on the coordinator
-     */
+    /*The goal of this method is to initialize the threads that run on the coordinator */
     private void initializeThreads(){
         CoordinatorThreads.OperationThread ot = threadManager.new OperationThread();
 
-        this.SYSTEM_STATUS = Status.NORMAL;
         try{
             ot.join();
             ot.start();
@@ -126,9 +115,7 @@ public class Coordinator {
 
     }
 
-    /*
-    Tester method for config file content
-     */
+    /*Tester method for config file content */
     private void printVars() {
         System.out.println("\nHotel IP: " +hotelAdd+ "\nConcert IP: " +concertAdd);
         System.out.println("Booking file: " + bookingFile.getAbsolutePath());

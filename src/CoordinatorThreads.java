@@ -12,7 +12,10 @@ import java.util.StringTokenizer;
 public class CoordinatorThreads {
 
     BufferedReader bookingFileReader;                           //reader for booking requests
+    ObjectOutputStream recoveryFileWriter;
     String hotelAdd, concertAdd;                                //addresses for hotel and concert
+    Coordinator.Status currentSystemStatus;
+
     List<String> requestStringList = new ArrayList<>();         //contains string of requests for participants
     List<Request> requestObjectList = new ArrayList<>();        //contains all Requests for participants
 
@@ -21,15 +24,21 @@ public class CoordinatorThreads {
      * hotelAdd and concertAdd in order to initialize
      * the booking requests.
      * @param bookingFileReader
+     * @param recoveryFileWriter
      * @param hotelAdd
      * @param concertAdd
+     * @param currentSystemStatus
      */
-    public CoordinatorThreads(BufferedReader bookingFileReader, String hotelAdd, String concertAdd){
+    public CoordinatorThreads(BufferedReader bookingFileReader, ObjectOutputStream recoveryFileWriter,
+                              String hotelAdd, String concertAdd, Coordinator.Status currentSystemStatus){
+
         if(bookingFileReader != null)
             this.bookingFileReader = bookingFileReader;
+        this.recoveryFileWriter = recoveryFileWriter;
 
         this.hotelAdd = hotelAdd;
         this.concertAdd = concertAdd;
+        this.currentSystemStatus = currentSystemStatus;
     }
 
     /**
@@ -76,13 +85,10 @@ public class CoordinatorThreads {
             }catch (InterruptedException e){
                 System.err.println("Interruption with outgoing threads...");
                 e.printStackTrace();
-                return;
             }
         }
 
-        /*
-         *Helper method whose job is to convert string requests to Request objects.
-         */
+        /*Helper method whose job is to convert string requests to Request objects */
         private Request parseRequest(String request){
             String[] tempStrings = request.replace("[", "").replace("]", "").split("\\s");
             String tempId = tempStrings[0];
@@ -129,22 +135,25 @@ public class CoordinatorThreads {
             try(
                     //TODO replace the hard code with the correct addresses
                     Socket requestSocket = new Socket("localhost", 7);//st.nextToken(), Integer.parseInt(st.nextToken()));
-                    //PrintWriter out = new PrintWriter(requestSocket.getOutputStream(),true);
-                    //BufferedReader in = new BufferedReader(new InputStreamReader(requestSocket.getInputStream()));
-                    ObjectOutputStream socketOut = new ObjectOutputStream(requestSocket.getOutputStream());
             ){
-                requestSocket.setSoTimeout(10000);
+                if(currentSystemStatus == Coordinator.Status.NORMAL) {
+                    ObjectOutputStream socketOut = new ObjectOutputStream(requestSocket.getOutputStream());
 
-                //out.println(currentRequest.toString());
-                //System.out.println("echo: " + in.readLine() +"\n");
-
-                //send the request to the participant and waits to read a response
-                socketOut.writeObject(currentRequest);
-                socketOut.flush();
+                    //send the request to the participant and waits to read a response
+                    socketOut.writeObject(currentRequest);
+                    socketOut.flush();
+                }
 
                 ObjectInputStream socketIn = new ObjectInputStream(requestSocket.getInputStream());
-                responseRequest = (Request) socketIn.readObject();
-                System.out.println(responseRequest);
+                if(currentSystemStatus == Coordinator.Status.NORMAL){
+                    responseRequest = (Request) socketIn.readObject();
+                }
+                else
+                    System.out.println("Coordinator is in non-normal state! Will not receive requests");
+
+                //TODO write the response Request to the recovery file
+                System.out.println("Received : " + responseRequest);
+                recoveryFileWriter.writeObject(responseRequest);
             }
             catch(UnknownHostException e){
                 System.err.println("Issue when finding other participants...");

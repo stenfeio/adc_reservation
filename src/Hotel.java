@@ -15,13 +15,11 @@ public class Hotel  {
 	String CoordinatorAdd;     //Address for Coordinator
 	//path to resources
 	
-	 public enum Status{
-	        NORMAL, RECOVERY, FAILED
-     }
+
 
     final String resourcePath = System.getProperty("user.dir") + "\\resources\\";
 
-    Status SYSTEM_STATUS;               //System status variable
+    Coordinator.Status SYSTEM_STATUS;               //System status variable
 
     File recoveryFile;                  //Defines recovery file path
     BufferedWriter recoveryFileWriter;  //Defines recover file writer
@@ -38,7 +36,7 @@ public class Hotel  {
 		}
 	}*/
     public Hotel(){
-        SYSTEM_STATUS = Status.FAILED;
+        SYSTEM_STATUS = Coordinator.Status.FAILED;
         configurationFile = new File(resourcePath+ "hotel-configuration-file.txt");
         recoveryFile = new File(resourcePath+ "coordinator-recovery.txt");
 
