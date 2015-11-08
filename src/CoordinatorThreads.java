@@ -67,17 +67,17 @@ public class CoordinatorThreads {
                 }
 
                 // this part loops over all the requests and starts an outgoing thread for each of them
-//                for(int i = 0; i < requestObjectList.size(); i++) {
-//                    System.out.println("Processing request: " + requestObjectList.get(i));
-//                    OutgoingThread outgoingThread = new OutgoingThread(requestObjectList.get(i));
-//                    outgoingThread.start();
-//                    outgoingThread.join();
-//                }
+                for(int i = 0; i < requestObjectList.size(); i++) {
+                    System.out.println("Processing request: " + requestObjectList.get(i));
+                    OutgoingThread outgoingThread = new OutgoingThread(requestObjectList.get(i));
+                    outgoingThread.start();
+                    outgoingThread.join();
+                }
 
-                System.out.println("Processing request: " + requestObjectList.get(0));
-                OutgoingThread outgoingThread = new OutgoingThread(requestObjectList.get(0));
-                outgoingThread.start();
-                outgoingThread.join();
+//                System.out.println("Processing request: " + requestObjectList.get(0));
+//                OutgoingThread outgoingThread = new OutgoingThread(requestObjectList.get(0));
+//                outgoingThread.start();
+//                outgoingThread.join();
 
             }catch(IOException e){
                 System.err.println("Could not read from booking file in coordinator operation thread...");

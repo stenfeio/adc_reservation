@@ -47,7 +47,7 @@ import java.net.*;
 	                int port = 7;
 	                ServerSocket serverSocket = new ServerSocket(port);
 	                System.out.println("Server Started and listening");
-	               hotel.SYSTEM_STATUS= Hotel.Status.NORMAL;
+	               hotel.SYSTEM_STATUS= Coordinator.Status.NORMAL;
 	     
 	                //Server is running always. This is done using this while(true) loop
 	                while(true){
@@ -59,7 +59,7 @@ import java.net.*;
                          System.out.println("Object recieved "+request);
                          
                          //Check the system status
-                         if( hotel.SYSTEM_STATUS== Hotel.Status.NORMAL){
+                         if( hotel.SYSTEM_STATUS== Coordinator.Status.NORMAL){
 	                     Request request1= checkstatus(request);		//Call the method to check availability of rooms
                    	     System.out.println(request1);
                    	     
