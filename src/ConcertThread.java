@@ -130,9 +130,14 @@ import java.net.*;
 	 public  Request checkstatus(Request request){
 		 	int[] n=new int[request.dates.size()];
 		 	int temp=0;
+		 //	System.out.println("");
 		   for(int i=0;i<request.dates.size();i++){
-		   if(concert.Tickets[n[i]]<=0)
-			   temp++;
+			   n[i]=request.dates.get(i);
+			   System.out.println("Concert ticket available on day "+n[i]+concert.Tickets[n[i]]);
+		   if(concert.Tickets[n[i]]<request.numberOfDays){
+			 	temp++;
+			   break;}
+		   
 		   }
 		   if(temp==0)
 			   request.status=Request.RStatus.SUCCESS;
@@ -144,7 +149,8 @@ import java.net.*;
 	 public void Reservation(Request request){
 		 int[] n=new int[request.dates.size()];
 		 for(int i=0;i<request.dates.size();i++){
-			   concert.Tickets[n[i]]=concert.Tickets[n[i]]-1;
+			  n[i]=request.dates.get(i);
+			   concert.Tickets[n[i]]=concert.Tickets[n[i]]-request.numberOfDays;
 				  
 			   }
 	 }
