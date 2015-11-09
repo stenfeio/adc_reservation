@@ -154,6 +154,7 @@ public class CoordinatorThreads {
                     ObjectInputStream concertSocketIn = new ObjectInputStream(concertRequestSocket.getInputStream());
                     concertResponse = (Request) concertSocketIn.readObject();
 
+                    //Democracy! lol
                     if(concertResponse.status == Request.RStatus.SUCCESS &&
                             hotelResponse.status == Request.RStatus.SUCCESS){
                         //TODO write the response Request to the recovery file delay to end

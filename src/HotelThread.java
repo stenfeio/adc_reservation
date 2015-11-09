@@ -35,7 +35,7 @@ import java.net.*;
 	        Socket coordsocket;
 	        ObjectInputStream inStream=null;
 	        ObjectOutputStream outstream=null;
-	        //Hotel h=new Hotel();
+	       
 	        HotelThread(Hotel h){
 	        	hotel=h;
 	        }
@@ -119,8 +119,10 @@ import java.net.*;
 	 public  Request checkstatus(Request request){
 		 	int[] n=new int[request.dates.size()];
 		 	int temp=0;
+		 	
 		   for(int i=0;i<request.dates.size();i++){
-		   if(hotel.Rooms[n[i]]<=0)
+			   n[i]=request.dates.get(i);
+		   if(hotel.Rooms[n[i]]<request.numberOfDays)
 			   temp++;
 		   }
 		   if(temp==0)
@@ -132,8 +134,10 @@ import java.net.*;
 	  
 	 public void Reservation(Request request){
 		 int[] n=new int[request.dates.size()];
+		 
 		 for(int i=0;i<request.dates.size();i++){
-			   hotel.Rooms[n[i]]=hotel.Rooms[n[i]]-1;
+			 n[i]=request.dates.get(i);
+			   hotel.Rooms[n[i]]=hotel.Rooms[n[i]]-request.numberOfDays;
 				  
 			   }
 	 }
