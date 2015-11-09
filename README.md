@@ -1,1 +1,1 @@
-# 2 Phase Reservation System #
+# 2 Phase Commit Reservation System #
