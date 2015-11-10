@@ -97,6 +97,14 @@ public class CoordinatorThreads {
             }
         }
 
+        public void pauseOperation(){
+
+        }
+
+        public void resumeOperation(){
+
+        }
+
         /*Helper method whose job is to convert string requests to Request objects */
         private Request parseRequest(String request){
             String[] tempStrings = request.replace("[", "").replace("]", "").split("\\s");
