@@ -3,6 +3,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.StringTokenizer;
 
 /**
@@ -48,38 +49,51 @@ public class CoordinatorThreads {
      * thread.
      */
     protected class OperationThread extends Thread{
+
         @Override
         public void run() {
+
             String tempRequest;         //temp string to read requests
+            OutgoingThread outgoingThread = null;
 
-            try {
-                while ((tempRequest = bookingFileReader.readLine()) != null) {
-                    requestStringList.add(tempRequest);
+            synchronized (requestObjectList) {
+                try {
+                    while ((tempRequest = bookingFileReader.readLine()) != null) {
+                        requestStringList.add(tempRequest);
+                    }
+                    System.out.println("Requests loaded into request list...");
+
+                    //closes the bookingFileReader after populating the request array
+                    bookingFileReader.close();
+
+                    //converts string requests into Request objects and adds to requestObjectList
+                    for (int i = 0; i < requestStringList.size(); i++) {
+                        requestObjectList.add(parseRequest(requestStringList.get(i)));
+                    }
+
+                    // this part loops over all the requests and starts an outgoing thread for each of them
+                    for (int i = 0; i < requestObjectList.size(); i++) {
+                        if (currentSystemStatus == Coordinator.Status.NORMAL) {
+                            System.out.println("\nProcessing request: " + requestObjectList.get(i));
+                            outgoingThread = new OutgoingThread(requestObjectList.get(i));
+                            outgoingThread.start();
+                            outgoingThread.join();
+                        } else {
+                            System.out.println("Waiting on requestObject list...");
+                            requestObjectList.wait();
+                            System.out.println("Waiting on requestObject list...");
+                        }
+                    }
+
+                } catch (IOException e) {
+                    System.err.println("Could not read from booking file in coordinator operation thread...");
+                    e.printStackTrace();
+                } catch (InterruptedException e) {
+                    System.err.println("Interruption with operation threads...");
+                    outgoingThread.interrupt();
+                    Thread.currentThread().interrupt();
+                    e.printStackTrace();
                 }
-                System.out.println("Requests loaded into request list...");
-
-                //closes the bookingFileReader after populating the request array
-                bookingFileReader.close();
-
-                //converts string requests into Request objects and adds to requestObjectList
-                for(int i = 0; i < requestStringList.size(); i++) {
-                    requestObjectList.add(parseRequest(requestStringList.get(i)));
-                }
-
-                // this part loops over all the requests and starts an outgoing thread for each of them
-                for(int i = 0; i < requestObjectList.size(); i++) {
-                    System.out.println("\nProcessing request: " + requestObjectList.get(i));
-                    OutgoingThread outgoingThread = new OutgoingThread(requestObjectList.get(i));
-                    outgoingThread.start();
-                    outgoingThread.join();
-                }
-
-            }catch(IOException e){
-                System.err.println("Could not read from booking file in coordinator operation thread...");
-                e.printStackTrace();
-            }catch (InterruptedException e){
-                System.err.println("Interruption with outgoing threads...");
-                e.printStackTrace();
             }
         }
 
@@ -96,17 +110,6 @@ public class CoordinatorThreads {
 
             Request tempRequest = new Request(tempId, tempNumberOfDays, dates);
             return tempRequest;
-        }
-    }
-
-    /**
-     * Thread that handles opening the incoming socket
-     */
-    protected class IncomingThread extends Thread{
-        //TODO open incoming socket
-        @Override
-        public void run() {
-
         }
     }
 
@@ -178,7 +181,6 @@ public class CoordinatorThreads {
                 }
                 else
                     System.out.println("Coordinator is in non-normal state! Will not receive requests");
-
             }
             catch(UnknownHostException e){
                 System.err.println("Issue when finding other participants...");
@@ -197,7 +199,40 @@ public class CoordinatorThreads {
         }
     }
 
+    /**
+     * Thread that handles listening to the keyboard input and
+     * simulates a fail when "fail" is entered. This will cause
+     * a number of changes to the state of the coordinator.
+     */
     protected class FailRecoverThread extends Thread{
+        Thread operationThread;
+
+
+        public FailRecoverThread(Thread operationThread){
+            this.operationThread = operationThread;
+        }
+
+        @Override
+        public void run() {
+            Scanner scanner = new Scanner(System.in);
+            if(scanner.next().equals("fail") && currentSystemStatus == Coordinator.Status.NORMAL) {
+                System.out.println("Inside fail thread.");
+                //operationThread.interrupt();
+                currentSystemStatus = Coordinator.Status.FAILED;
+                try{
+                    Thread.sleep(2000);
+                }catch (InterruptedException e){
+
+                }
+            }
+        }
+    }
+
+    /**
+     * Thread that handles opening the incoming socket
+     */
+    protected class IncomingThread extends Thread{
+        //TODO open incoming socket
         @Override
         public void run() {
 
