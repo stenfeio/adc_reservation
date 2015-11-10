@@ -68,7 +68,7 @@ public class CoordinatorThreads {
 
                 // this part loops over all the requests and starts an outgoing thread for each of them
                 for(int i = 0; i < requestObjectList.size(); i++) {
-                    System.out.println("Processing request: " + requestObjectList.get(i));
+                    System.out.println("\nProcessing request: " + requestObjectList.get(i));
                     OutgoingThread outgoingThread = new OutgoingThread(requestObjectList.get(i));
                     outgoingThread.start();
                     outgoingThread.join();
@@ -137,6 +137,7 @@ public class CoordinatorThreads {
                     Socket hotelRequestSocket = new Socket(hStringT.nextToken(), Integer.parseInt(hStringT.nextToken()));
                     Socket concertRequestSocket = new Socket(cStringT.nextToken(), Integer.parseInt(cStringT.nextToken()))
             ){
+                Thread.sleep(3000);
                 if(currentSystemStatus == Coordinator.Status.NORMAL) {
                     ObjectOutputStream hotelSocketOut = new ObjectOutputStream(hotelRequestSocket.getOutputStream());
                     ObjectOutputStream concertSocketOut = new ObjectOutputStream(concertRequestSocket.getOutputStream());
@@ -189,6 +190,9 @@ public class CoordinatorThreads {
             }
             catch(ClassNotFoundException e){
                 System.err.println("Issue with passing objects to server...");
+            }
+            catch(InterruptedException e){
+                System.err.println("An outgoing thread has been interupted...");
             }
         }
     }

@@ -104,16 +104,20 @@ public class Coordinator {
     /*The goal of this method is to initialize the threads that run on the coordinator */
     private void initializeThreads(){
         CoordinatorThreads.OperationThread ot = threadManager.new OperationThread();
+        CoordinatorThreads.FailRecoverThread ft = threadManager.new FailRecoverThread();
 
         try{
-            ot.join();
             ot.start();
+            ot.join();
+            //ot.interrupt();
+            //System.err.println("Being a douche in the main...");
         }catch (InterruptedException e){
             System.out.println("Operation thread interrupted...");
             e.printStackTrace();
         }
 
     }
+
 
     /*Tester method for config file content */
     private void printVars() {
