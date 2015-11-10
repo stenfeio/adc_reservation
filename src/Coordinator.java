@@ -1,3 +1,4 @@
+import java.awt.event.*;
 import java.io.*;
 
 public class Coordinator {
@@ -104,15 +105,19 @@ public class Coordinator {
     /*The goal of this method is to initialize the threads that run on the coordinator */
     private void initializeThreads(){
         CoordinatorThreads.OperationThread ot = threadManager.new OperationThread();
+        CoordinatorThreads.FailRecoverThread ft = threadManager.new FailRecoverThread(ot);
+        ft.start();
 
         try{
-            ot.join();
             ot.start();
-        }catch (InterruptedException e){
-            System.out.println("Operation thread interrupted...");
+            //ot.interrupt();
+            //ot.join();
+
+            //System.err.println("Being a douche in the main...");
+        }catch (Exception e){
+            System.err.println("Interruption with operation thread...");
             e.printStackTrace();
         }
-
     }
 
     /*Tester method for config file content */
