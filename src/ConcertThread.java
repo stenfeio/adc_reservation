@@ -1,5 +1,9 @@
 	import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.io.*;
@@ -21,14 +25,13 @@ import java.net.*;
      */
 	    public class ConcertThread extends Thread{
 	      
-
-	   Concert concert;
-	    /**
-	     * Private thread that handles opening the incoming socket
-	     */
+	    	final String resourcePath = System.getProperty("user.dir") + "\\resources\\";
+	    	 File concertlogfile;						//Defines the log file for concert
+	    	 BufferedWriter concertlogfilewrite;		//Defines the log file writer
+	    	 
+	         Concert concert;
+	      
 	   
-	        //TODO open incoming socket
-	    //    @Override
 	        Socket coordsocket;
 	        ObjectInputStream inStream=null;
 	        ObjectOutputStream outstream=null;
@@ -37,10 +40,15 @@ import java.net.*;
 	        
 	       ConcertThread(Concert c){
 	        	concert=c;
-	        	
+	        	concertlogfile = new File(resourcePath+ "Concert -Log.txt");
 	        }
 	        public void run() {
-	        	 
+	        	 /**
+	    	     *  thread that handles opening the incoming socket
+	    	     */
+	    	   
+	    	        //TODO open incoming socket
+	    	    //    @Override
 	        	try
 	            {
 	     
@@ -62,7 +70,7 @@ import java.net.*;
                          
                          //Check the system status
                          if( concert.SYSTEM_STATUS== Coordinator.Status.NORMAL){
-                        	 Request request1= checkstatus(request);		//Call the method to check availability of rooms
+                        	 Request request1= checkstatus(request);		//Call the method to check availability of tickets
                    	     System.out.println(request1);
                    	  
                    	     //Writing the object to the client
@@ -134,7 +142,7 @@ import java.net.*;
 		   for(int i=0;i<request.dates.size();i++){
 			   n[i]=request.dates.get(i);
 			   System.out.println("Concert ticket available on day "+n[i]+concert.Tickets[n[i]]);
-		   if(concert.Tickets[n[i]]<request.numberOfDays){
+		   if(concert.Tickets[n[i]-1]<request.numberOfDays){
 			 	temp++;
 			   break;}
 		   
@@ -146,15 +154,45 @@ import java.net.*;
 		   return request;
 	   }
 	  
-	 public void Reservation(Request request){
+	 public void Reservation(Request request) throws IOException{
 		 int[] n=new int[request.dates.size()];
 		 for(int i=0;i<request.dates.size();i++){
 			  n[i]=request.dates.get(i);
-			   concert.Tickets[n[i]]=concert.Tickets[n[i]]-request.numberOfDays;
+			   concert.Tickets[n[i]-1]=concert.Tickets[n[i]-1]-request.numberOfDays;
 				  
 			   }
+		 String A="";
+		 for(int i=0;i<10;i++){
+			 int j=i+1;
+			 A=A.concat(Integer.toString(j));
+			 A= A.concat(" ");
+			 System.out.println("Tickets on day "+ j+"="+concert.Tickets[i]);
+			 A=A.concat(Integer.toString(concert.Tickets[i]));
+			 A=A.concat("\n");
+			
+			 openFiles();
+			 
+			 concertlogfilewrite.write(A);
+			 concertlogfilewrite.write("\n");
+			 
+		 }
+		 concertlogfilewrite.flush();
+		 concertlogfilewrite.close(); 
 	 }
-	        
+	 
+	 private void openFiles(){
+	        try{
+	        	
+	        	concertlogfilewrite = new BufferedWriter(new FileWriter(concertlogfile));
+
+	        }catch(FileNotFoundException e){
+	            System.err.println("Could not find configuration file...");
+	            e.printStackTrace();
+	        }catch (IOException e){
+	            System.err.println("Can't write to concert-Log file...");
+	            e.printStackTrace();
+	        }
+	    }
 	 /*   protected class FailRecoverThread extends Thread{
 	        @Override
 	        public void run() {
