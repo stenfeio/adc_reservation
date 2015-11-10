@@ -1,3 +1,4 @@
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -32,6 +33,7 @@ public class HotelThreads {
 	    	 final String resourcePath = System.getProperty("user.dir") + "\\resources\\";
 	    	 File hotellogfile;						//Defines the log file for hotel
 	    	 BufferedWriter hotellogfilewrite;		//Defines the log file writer
+	    	 BufferedReader hotelbufferedreader;	//Defines the log file reader
 	        
 	    	 
 	   
@@ -88,8 +90,19 @@ public class HotelThreads {
                	         if(req.status==Request.RStatus.SUCCESS)
                	         Reservation(req);
                          }
-	                     else
+	                     else if(hotel.SYSTEM_STATUS==Coordinator.Status.RECOVERY){
+	                    	 System.out.println("Hotel system is in Recovery State");
+	                    	 ReadFile();
+	                    	 hotel.SYSTEM_STATUS=Coordinator.Status.NORMAL;
+	                     }
+	                     else{
+	                    	 for(int i=0;i<10;i++)
+	                    	 hotel.Rooms[i]=8;				            			//Set to Default Value
+	                    	 inStream=null;
+	                    	 outstream=null;
 	                    	 System.out.println("Hotel system is in Fail State, It won't recieve");
+	                    	 //Thread.sleep(300000000);
+	                     }
 	                  
 	                  /*  try
 	                    {	//Check if the object is passed with the correct parameter or not
@@ -177,7 +190,7 @@ public class HotelThreads {
 		 
 	 }
 	  
-	   private void openFiles(){
+	   void openFiles(){
 	        try{
 	        	
 	        	hotellogfilewrite = new BufferedWriter(new FileWriter(hotellogfile));
@@ -189,6 +202,36 @@ public class HotelThreads {
 	            System.err.println("Can't write to Hotel-Log file...");
 	            e.printStackTrace();
 	        }
+	    }
+	   
+	   public void ReadFile(){
+		   String line;
+	    	openFiles();
+	    	 if (hotelbufferedreader!= null) {
+	             try {
+	                 line = hotelbufferedreader.readLine();							//reads the address of the coordinator given in file
+	                 
+	                 for(int i=0;i<10;i++){
+	                 	String[] temp;													//String split to read the no. of rooms from file
+	                 line = hotelbufferedreader.readLine();
+	                 String delimiter = " ";
+	                 temp=line.split(delimiter);
+	                 hotel.Rooms[i]=Integer.valueOf(temp[1]);		                              //Initialize the rooms with the value given in file
+	                
+	                 // concertAdd = line;
+	                 System.out.println("Rooms on the day"+i+"  " +hotel.Rooms[i]);
+	                 }
+
+	                 line = hotelbufferedreader.readLine();
+
+	                 hotelbufferedreader.close();
+	                 System.out.println("Finished setting ip addresses...\nConfigFileReader closing");
+
+	             }catch (Exception e){
+	                 System.err.println("Issue with setting addresses...");
+	                 e.printStackTrace();
+	             }
+	         }
 	    }
 	   
 	 }
@@ -207,9 +250,20 @@ public class HotelThreads {
 
 	                 }
 	             }
+	             if(scanner.next().equals("rec") && hotel.SYSTEM_STATUS==Coordinator.Status.FAILED){
+	            	 System.out.println("Changed to recovery state");
+	            	 hotel.SYSTEM_STATUS = Coordinator.Status.RECOVERY;
+	            	 try{
+	                     Thread.sleep(200);
+	                 }catch (InterruptedException e){
+
+	                 }
+	            //	 ht.interrupt();
+	            	
+	             }
 	        }
 	    }
-
+	   
 	    /**
 	     * This class is a thread that handles reading the requests
 	     * from the bookingRequests file and populates the request list.
