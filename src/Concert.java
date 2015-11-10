@@ -36,13 +36,13 @@ public class Concert  {
         Initialization();							// Initialize the no. of rooms as 8 for each day
         //Reservation(day);							// pass the day on which the reservation has to be done(this user will provide)?
        	
-        ConcertThread conthreadManager = new ConcertThread(this);
-        conthreadManager.run();
+        ConcertThreads conthreadManager = new ConcertThreads(this);
+       // conthreadManager.run();
        // HotelThread.OperationThread ot = threadManager.new OperationThread();
         //ot.run();
     	
     	
-    }
+    }       
     private void closeFiles(){
         try{
             if (configurationFileReader != null)
@@ -68,7 +68,7 @@ public class Concert  {
             try {
                 line = configurationFileReader.readLine();							//reads the address of the coordinator given in file
                 CoordinatorAdd= line;
-                for(int i=0;i<9;i++){
+                for(int i=0;i<10;i++){
                 	String[] temp;													//String split to read the no. of rooms from file
                 line = configurationFileReader.readLine();
                 String delimiter = " ";
