@@ -78,7 +78,15 @@ public class CoordinatorThreads {
                             outgoingThread = new OutgoingThread(requestObjectList.get(i));
                             outgoingThread.start();
                             outgoingThread.join();
+
+                        } else if (currentSystemStatus == Coordinator.Status.RECOVERY){
+                            System.out.println("Recovering...");
+                            currentSystemStatus = Coordinator.Status.NORMAL;
                         } else {
+                            this.wait();
+                            System.out.println("Cannot request, state not normal");
+                            //this.wait();
+                            //TODO read objects from file and establish new state.
 
                         }
                     }
@@ -108,8 +116,8 @@ public class CoordinatorThreads {
         /**causes the operation thread to resume after a pause*/
         public void resumeOperation(){
             synchronized (this){
-                if(this.isAlive())
-                    this.notify();
+                //if(this.isAlive())
+                this.notify();
             }
         }
 
@@ -157,9 +165,15 @@ public class CoordinatorThreads {
                     Socket concertRequestSocket = new Socket(cStringT.nextToken(), Integer.parseInt(cStringT.nextToken()))
             ){
                 Thread.sleep(3000);
+                ObjectOutputStream hotelSocketOut = null;
+                ObjectOutputStream concertSocketOut = null;
+
+                ObjectInputStream hotelSocketIn = null;
+                ObjectInputStream concertSocketIn = null;
+
                 if(currentSystemStatus == Coordinator.Status.NORMAL) {
-                    ObjectOutputStream hotelSocketOut = new ObjectOutputStream(hotelRequestSocket.getOutputStream());
-                    ObjectOutputStream concertSocketOut = new ObjectOutputStream(concertRequestSocket.getOutputStream());
+                    hotelSocketOut = new ObjectOutputStream(hotelRequestSocket.getOutputStream());
+                    concertSocketOut = new ObjectOutputStream(concertRequestSocket.getOutputStream());
 
                     //send the request to the participant and waits to read a response
                     hotelSocketOut.writeObject(currentRequest);
@@ -168,10 +182,10 @@ public class CoordinatorThreads {
                     concertSocketOut.writeObject(currentRequest);
                     concertSocketOut.flush();
 
-                    ObjectInputStream hotelSocketIn = new ObjectInputStream(hotelRequestSocket.getInputStream());
+                    hotelSocketIn = new ObjectInputStream(hotelRequestSocket.getInputStream());
                     hotelResponse = (Request) hotelSocketIn.readObject();
 
-                    ObjectInputStream concertSocketIn = new ObjectInputStream(concertRequestSocket.getInputStream());
+                    concertSocketIn = new ObjectInputStream(concertRequestSocket.getInputStream());
                     concertResponse = (Request) concertSocketIn.readObject();
 
                     //Democracy! lol
@@ -195,8 +209,16 @@ public class CoordinatorThreads {
                         recoveryFileWriter.writeObject(currentRequest);
                     }
                 }
-                else
+                else {
                     System.out.println("Coordinator is in non-normal state! Will not receive requests");
+                    //hotelSocketOut.flush();
+                    //concertSocketOut.flush();
+
+                    hotelRequestSocket.close();
+                    concertRequestSocket.close();
+                    return;
+
+                }
             }
             catch(UnknownHostException e){
                 System.err.println("Issue when finding other participants...");
@@ -234,31 +256,20 @@ public class CoordinatorThreads {
         @Override
         public void run() {
             Scanner scanner = new Scanner(System.in);
-            if(scanner.next().equals("fail") && currentSystemStatus == Coordinator.Status.NORMAL) {
-                System.out.println("Inside fail thread.");
-                //operationThread.interrupt();
+            if(scanner.nextLine().equals("fail") && currentSystemStatus == Coordinator.Status.NORMAL) {
                 currentSystemStatus = Coordinator.Status.FAILED;
                 try{
                     System.out.println("Pausing excecution...");
-                    operationThread.pauseOperation();
-                    Thread.sleep(10000);
-                    System.out.println("Resuming excecution...");
-                    operationThread.resumeOperation();
-                }catch (InterruptedException e){
-
-                }
+                    //operationThread.pauseOperation();
+                    if(scanner.nextLine().equals("recover") && currentSystemStatus == Coordinator.Status.FAILED) {
+                        System.out.println("Resuming excecution...");
+                        currentSystemStatus = Coordinator.Status.RECOVERY;
+                        operationThread.resumeOperation();
+                    }
+                }catch (Exception e){}
+            }else {
+                return;
             }
         }
     }
-
-//    /**
-//     * Thread that handles opening the incoming socket
-//     */
-//    protected class IncomingThread extends Thread{
-//        //TODO open incoming socket
-//        @Override
-//        public void run() {
-//
-//        }
-//    }
 }
