@@ -56,7 +56,7 @@ public class CoordinatorThreads {
             String tempRequest;         //temp string to read requests
             OutgoingThread outgoingThread = null;
 
-            synchronized (requestObjectList) {
+            synchronized (this) {
                 try {
                     while ((tempRequest = bookingFileReader.readLine()) != null) {
                         requestStringList.add(tempRequest);
@@ -79,9 +79,7 @@ public class CoordinatorThreads {
                             outgoingThread.start();
                             outgoingThread.join();
                         } else {
-                            System.out.println("Waiting on requestObject list...");
-                            requestObjectList.wait();
-                            System.out.println("Waiting on requestObject list...");
+
                         }
                     }
 
@@ -96,13 +94,23 @@ public class CoordinatorThreads {
                 }
             }
         }
-
+        /**causes the operation thread to pause until a notify comes back*/
         public void pauseOperation(){
+            synchronized (this){
+                try{
+                    this.wait();
+                }catch (InterruptedException e){
 
+                }
+            }
         }
 
+        /**causes the operation thread to resume after a pause*/
         public void resumeOperation(){
-
+            synchronized (this){
+                if(this.isAlive())
+                    this.notify();
+            }
         }
 
         /*Helper method whose job is to convert string requests to Request objects */
@@ -211,12 +219,15 @@ public class CoordinatorThreads {
      * Thread that handles listening to the keyboard input and
      * simulates a fail when "fail" is entered. This will cause
      * a number of changes to the state of the coordinator.
+     * The fail recover thread sets the sate of the coordinator to
+     * failed and hence causes the operation thread to stop sending messages.
+     * This thread also calls the pauseOperation method of the OperationThread
+     * class so that it pauses execution.
      */
     protected class FailRecoverThread extends Thread{
-        Thread operationThread;
+        OperationThread operationThread;
 
-
-        public FailRecoverThread(Thread operationThread){
+        public FailRecoverThread(OperationThread operationThread){
             this.operationThread = operationThread;
         }
 
@@ -228,7 +239,11 @@ public class CoordinatorThreads {
                 //operationThread.interrupt();
                 currentSystemStatus = Coordinator.Status.FAILED;
                 try{
-                    Thread.sleep(2000);
+                    System.out.println("Pausing excecution...");
+                    operationThread.pauseOperation();
+                    Thread.sleep(10000);
+                    System.out.println("Resuming excecution...");
+                    operationThread.resumeOperation();
                 }catch (InterruptedException e){
 
                 }
@@ -236,14 +251,14 @@ public class CoordinatorThreads {
         }
     }
 
-    /**
-     * Thread that handles opening the incoming socket
-     */
-    protected class IncomingThread extends Thread{
-        //TODO open incoming socket
-        @Override
-        public void run() {
-
-        }
-    }
+//    /**
+//     * Thread that handles opening the incoming socket
+//     */
+//    protected class IncomingThread extends Thread{
+//        //TODO open incoming socket
+//        @Override
+//        public void run() {
+//
+//        }
+//    }
 }
