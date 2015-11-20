@@ -1,11 +1,4 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Scanner;
@@ -21,12 +14,18 @@ public class HotelThreads {
 		ft.start();
 		try{
 			ht.start();
+			ht.join();
+			System.out.println("Back to main execution...");
+			HotelThread ht2 = new HotelThread();
+			ht2.start();
+			ht2.join();
+
         }catch (Exception e){
             System.err.println("Interruption with operation thread...");
-            e.printStackTrace();
+            //e.printStackTrace();
+			HotelThread ht2 = new HotelThread();
+			ht2.start();
         }
-		
-		
 	}
 
 	public class HotelThread extends Thread{
@@ -55,11 +54,10 @@ public class HotelThreads {
 			//    @Override
 			try
 			{
-
 				int port = 7;
 				ServerSocket serverSocket = new ServerSocket(port);
 				System.out.println("Server Started and listening");
-			   hotel.SYSTEM_STATUS= Coordinator.Status.NORMAL;
+			    hotel.SYSTEM_STATUS= Coordinator.Status.NORMAL;
 
 				//Server is running always. This is done using this while(true) loop
 				while(true){
@@ -100,37 +98,17 @@ public class HotelThreads {
 						 System.out.println("Hotel system is in Fail State, It won't recieve");
 						 //Thread.sleep(300000000);
 					 }
-
-				  /*  try
-					{	//Check if the object is passed with the correct parameter or not
-						System.out.println("checks the paraemeter of the object");
-						if(request.id!=null ||request.dates!=null|| request.numberOfDays!=0 ||request.status!=null){
-							System.out.println("correct");
-						 outstream = new ObjectOutputStream(coordsocket.getOutputStream());
-						 outstream.writeObject(request1);
-						 System.out.println("Message sent to the client is "+request1);
-					}
-					else{
-						outstream = new ObjectOutputStream(coordsocket.getOutputStream());
-						outstream.writeObject(request);
-
-					}
-					}
-					catch(Exception e)
-					{
-
-					}
-
-							   OutputStreamWriter osw = new OutputStreamWriter(os);
-							   BufferedWriter bw = new BufferedWriter(osw);
-							   bw.write(returnMessage);
-							   bw.flush();
-				 */
 				}
 		   	}
-			catch (Exception e)
-			{
-				e.printStackTrace();
+			catch (ClassNotFoundException e){
+
+			}
+			catch(InterruptedException e){
+
+			}
+			catch(IOException e){
+				System.out.println("Client dropped.");
+				return;
 			}
 			finally
 			{

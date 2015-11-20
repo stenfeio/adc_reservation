@@ -118,10 +118,16 @@ public class ConcertThreads {
 	                 */
 	            }
 	           }
-	            catch (Exception e)
-	            {
-	                e.printStackTrace();
-	            }
+				catch(IOException e){
+					System.out.println("Client dropped.");
+					return;
+				}
+				catch (ClassNotFoundException e){
+
+				}
+				catch(InterruptedException e){
+
+				}
 	            finally
 	            {
 	                try
