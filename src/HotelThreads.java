@@ -18,7 +18,8 @@ public class HotelThreads {
 			System.out.println("Back to main execution...");
 			HotelThread ht2 = new HotelThread();
 			ht2.start();
-			ht2.join();
+			System.out.println("Started new thread");
+			//ht2.join();
 
         }catch (Exception e){
             System.err.println("Interruption with operation thread...");
@@ -52,9 +53,11 @@ public class HotelThreads {
 
 			//TODO open incoming socket
 			//    @Override
+
 			try
 			{
 				int port = 7;
+				System.out.println("Inside hotel thread...");
 				ServerSocket serverSocket = new ServerSocket(port);
 				System.out.println("Server Started and listening");
 			    hotel.SYSTEM_STATUS= Coordinator.Status.NORMAL;

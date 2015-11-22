@@ -20,6 +20,10 @@ public class ConcertThreads {
 		ft.start();
 		try{
 			ct.start();
+			ct.join();
+			ConcertThread ct2 = new ConcertThread();
+			ct2.start();
+			System.out.println("Started new thread");
         }catch (Exception e){
             System.err.println("Interruption with operation thread...");
             e.printStackTrace();
